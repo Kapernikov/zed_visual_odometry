@@ -1,0 +1,40 @@
+<launch>
+
+  <arg name="database"   default="output.db"/>
+  <arg name="resolution" default="3" /> <!--0=RESOLUTION_HD2K, 1=RESOLUTION_HD1080, 2=RESOLUTION_HD720, 3=RESOLUTION_VGA -->
+  <arg name="frame_rate" default="30" />
+  <arg name="stereo"     default="false" />
+  <arg name="zed"        default="true" />
+  <arg name="viewer"     default="true" />
+
+  <include file="$(find zed_visual_odometry)/launch/zed.launch" ns="camera" if="$(arg zed)">
+    <arg name="resolution"         value="$(arg resolution)" />
+    <arg name="frame_rate"         value="$(arg frame_rate)" />
+    <arg name="map"                value="false" unless="$(arg stereo)" />
+    <arg name="odom"               value="false" if="$(arg stereo)"/>
+    <arg name="rviz"               value="false" />
+  </include>
+
+  <include file="$(find rtabmap_ros)/launch/data_recorder.launch">
+    <arg name="frame_id"           value="zed_camera_center" />
+    <arg name="approx_sync"        value="false" />
+    <arg name="output_path"        value="$(arg database)" />
+
+    <arg name="subscribe_odometry" value="true" unless="$(arg stereo)" />
+    <arg name="subscribe_stereo"   value="$(arg stereo)"/>
+
+    <arg name="odom_topic"         value="/camera/odom" />
+    <arg name="depth_topic"        value="/camera/depth/depth_registered" />
+    <arg name="rgb_topic"          value="/camera/rgb/image_rect_color"/>
+    <arg name="rgb_info_topic"     value="/camera/rgb/camera_info"/>
+    <arg name="left_topic"         value="/camera/left/image_rect_color"/>
+    <arg name="left_info_topic"    value="/camera/left/camera_info"/>
+    <arg name="right_topic"        value="/camera/right/image_rect_color"/>
+    <arg name="right_info_topic"   value="/camera/right/camera_info"/>
+  </include>
+
+  <node name="zed_stream_viewer" pkg="image_view" type="image_view" if="$(arg viewer)"
+    args="image:=/camera/rgb/image_rect_color _image_transport:=theora" />
+
+
+</launch>

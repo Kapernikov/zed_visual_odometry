@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>zed_visual_odometry</name>
+  <version>0.0.0</version>
+  <description>The vo_launchers package</description>
+  <maintainer email="george@kapernikov.com">George Kouros</maintainer>
+  <author email="george@kapernikov.com">George Kouros</author>
+  <license>Copyright (c) 2019 Kapernikov CVBA. All rights reserved.</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>rtabmap</exec_depend>
+  <exec_depend>rtabmap_ros</exec_depend>
+  <exec_depend>zed_wrapper</exec_depend>
+
+  <export>
+  </export>
+</package>

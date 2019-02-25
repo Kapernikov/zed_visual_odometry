@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<launch>
+
+  <param name="/use_sim_time" value="true" />
+
+  <arg name="bag"         default="~/.ros/zed.bag" />
+  <arg name="player"      default="true" />
+  <arg name="mapping"     default="true" />
+  <arg name="stereo"      default="false" />
+  <arg name="rate"        default="1" />
+  <arg name="start"       default="0" />
+
+  <!-- playback recorded bagfile -->
+  <node name="zed_bag_player" pkg="rosbag" type="play" args="$(arg bag) --clock -s $(arg start) -r $(arg rate)">
+    <remap from="/camera/odom" to="/unused_zed_odom" if="$(arg stereo)"/>
+  </node>
+
+  <!-- launch mapping node -->
+  <include file="$(find rtabmap_ros)/launch/rtabmap.launch" if="$(arg mapping)">
+    <arg name="use_sim_time"            value="true" />
+    <arg name="rtabmap_args"            value="--delete_db_on_start Reg/Strategy 0" />
+    <arg name="compressed"              value="true" />
+    <arg name="depth_image_transport"   value="raw" />
+    <arg name="stereo"                  value="$(arg stereo)" />
+    <arg name="visual_odometry"         value="false" unless="$(arg stereo)"/>
+    <arg name="cfg"                     value="$(find zed_visual_odometry)/config/rtabmap.ini" />
+    <arg name="frame_id"                value="zed_camera_center" />
+    <arg name="odom_topic"              value="/camera/odom" />
+    <arg name="depth_topic"             value="/camera/depth/depth_registered" />
+    <arg name="rgb_topic"               value="/camera/left/image_rect_color" />
+    <arg name="left_image_topic"        value="/camera/left/image_rect_color" />
+    <arg name="right_image_topic"       value="/camera/right/image_rect_color" />
+    <arg name="camera_info_topic"       value="/camera/left/camera_info" />
+    <arg name="left_camera_info_topic"  value="/camera/left/camera_info" />
+    <arg name="right_camera_info_topic" value="/camera/right/camera_info" />
+  </include>
+
+  <param name="zed_description" textfile="$(find zed_wrapper)/urdf/zed.urdf" />
+  <node name="zed_state_publisher" pkg="robot_state_publisher" type="state_publisher">
+      <remap from="robot_description" to="zed_description" />
+  </node>
+
+</launch>
